@@ -79,36 +79,67 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Form submission
+    // Form submission with Node.js Backend
     const contactForm = document.querySelector('.contact-form');
     if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
+        contactForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             // Get form data
             const formData = new FormData(this);
-            const name = formData.get('name');
-            const email = formData.get('email');
-            const phone = formData.get('phone');
-            const subject = formData.get('subject');
-            const message = formData.get('message');
+            const data = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                subject: formData.get('subject'),
+                message: formData.get('message')
+            };
 
             // Simple validation
-            if (!name || !email || !subject || !message) {
+            if (!data.name || !data.email || !data.subject || !data.message) {
                 alert('Lütfen tüm zorunlu alanları doldurun.');
                 return;
             }
 
             // Email validation
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
+            if (!emailRegex.test(data.email)) {
                 alert('Lütfen geçerli bir e-posta adresi girin.');
                 return;
             }
 
-            // Simulate form submission
-            alert('Mesajınız başarıyla gönderildi! En kısa sürede size dönüş yapacağız.');
-            this.reset();
+            // Show loading state
+            const submitBtn = this.querySelector('.btn-submit');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'GÖNDERİLİYOR...';
+            submitBtn.disabled = true;
+
+            try {
+                // Send to backend
+                const response = await fetch('http://localhost:5000/api/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Mesajınız başarıyla gönderildi! En kısa sürede size dönüş yapacağız.');
+                    this.reset();
+                } else {
+                    alert('Bir hata oluştu: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Form submission error:', error);
+                alert('Bağlantı hatası. Lütfen tekrar deneyin.');
+            } finally {
+                // Reset button state
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
         });
     }
 

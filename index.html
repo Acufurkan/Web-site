@@ -237,7 +237,8 @@
                         <div class="form-subtitle">BİZE MESAJ GÖNDERİN</div>
                         <h2 class="form-title">İletişim Formu</h2>
                     </div>
-                    <form class="contact-form">
+                    <form name="contact" method="POST" data-netlify="true" class="contact-form">
+                        <input type="hidden" name="form-name" value="contact" />
                         <div class="form-group">
                             <input type="text" id="name" name="name" placeholder="Adınız / Soyadınız" required>
                         </div>
